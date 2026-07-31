@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+.python-version
+
+# Virtualenv
+venv/
+.venv/
+ENV/
+
+# Django
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+collectstatic/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# IDE / editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ruff
+.ruff_cache/
+
+# Test / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
