@@ -82,7 +82,6 @@ class CartItemViewSet(viewsets.ModelViewSet):
         data = serializer.validated_data
         cart = data.pop("cart")
         item, created = CartItemService.add_or_update_quantity(cart, data)
-        item.refresh_from_db()
         return Response(
             self.get_serializer(item).data,
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
@@ -115,7 +114,6 @@ class CartItemViewSet(viewsets.ModelViewSet):
         if not CartItem.objects.filter(pk=instance.pk).exists():
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        instance.refresh_from_db()
         return Response(self.get_serializer(instance).data)
 
     def destroy(self, request, *args, **kwargs):
@@ -127,7 +125,6 @@ class CartItemViewSet(viewsets.ModelViewSet):
     def increment(self, request, pk=None):
         instance = self.get_object()
         CartItemService.add(instance.cart_id, instance.product_id)
-        instance.refresh_from_db()
         return Response(self.get_serializer(instance).data)
 
     @action(detail=True, methods=["post"])
@@ -135,6 +132,5 @@ class CartItemViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         CartItemService.remove(instance.cart_id, instance.product_id)
         if CartItem.objects.filter(pk=instance.pk).exists():
-            instance.refresh_from_db()
             return Response(self.get_serializer(instance).data)
         return Response(status=status.HTTP_204_NO_CONTENT)
