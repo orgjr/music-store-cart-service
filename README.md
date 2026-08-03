@@ -141,7 +141,6 @@ All API routes are versioned under `/api/v1/`.
 - `GET /api/v1/cart/{uuid}/` — retrieves a cart with its items.
 - `PUT /api/v1/cart/{uuid}/` — updates a cart.
 - `PATCH /api/v1/cart/{uuid}/` — partially updates a cart.
-- `DELETE /api/v1/cart/{uuid}/` — deletes a cart.
 - `DELETE /api/v1/cart/{uuid}/items/` — clears all items from a cart.
 - `GET /api/v1/cart/items/` — lists cart items (paginated).
 - `POST /api/v1/cart/items/` — adds an item to a cart; if the product already exists, its quantity is summed.
