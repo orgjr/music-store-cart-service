@@ -14,7 +14,6 @@ class CartItemService:
         else:
             cart_item.update(quantity=F("quantity") + quantity)
         CartService.update_price(cart_pk)
-        return cart_item
 
     @staticmethod
     def add_or_update_quantity(cart, data) -> CartItem:
@@ -39,7 +38,7 @@ class CartItemService:
         return cart_item, created
 
     @staticmethod
-    def add(cart_pk, product_id) -> CartItem:
+    def add(cart_pk, product_id):
         try:
             cart = Cart.objects.get(pk=cart_pk)
         except Cart.DoesNotExist:
@@ -47,20 +46,19 @@ class CartItemService:
         cart_item = cart.items.filter(product_id=product_id)
         cart_item.update(quantity=F("quantity") + 1)
         CartService.update_price(cart_pk)
-        return cart_item
 
     @staticmethod
-    def remove(cart_pk, product_id) -> CartItem:
+    def remove(cart_pk, product_id):
         try:
             cart = Cart.objects.get(pk=cart_pk)
         except Cart.DoesNotExist:
             raise Cart.DoesNotExist("Cart was not created yet")
         cart_item = cart.items.filter(product_id=product_id)
         if cart_item.first().quantity == 1:
-            return CartItemService.clear(cart_pk, product_id)
-        cart_item.update(quantity=F("quantity") - 1)
+            CartItemService.clear(cart_pk, product_id)
+        else:
+            cart_item.update(quantity=F("quantity") - 1)
         CartService.update_price(cart_pk)
-        return cart_item
 
     @staticmethod
     def clear(cart_pk, product_id) -> str:

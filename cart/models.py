@@ -40,6 +40,10 @@ class CartItem(models.Model):
     def __str__(self):
         return self.product_name
 
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     class Meta:
         constraints: ClassVar = [
             models.UniqueConstraint(

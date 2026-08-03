@@ -1,0 +1,56 @@
+# Version control
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+.python-version
+
+# Virtualenv
+venv/
+.venv/
+ENV/
+
+# Django
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+collectstatic/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Docker build files
+Dockerfile
+compose.yaml
+.dockerignore
+
+# Docs
+README.md
+
+# IDEs / editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Lint / test / coverage
+.ruff_cache/
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/

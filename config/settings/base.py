@@ -16,9 +16,7 @@ DEBUG = env("DEBUG")
 
 PROJECT_NAME = "Music Store Cart Service"
 PROJECT_VERSION = "0.9.0"
-PROJECT_DESCRIPTION = (
-    "API para gerenciamento de carrinho de compras de uma loja de música."
-)
+PROJECT_DESCRIPTION = "An API for managing a music store shopping cart."
 API_ROOT_PREFIX = "/api/v1/"
 ENVIRONMENT = env("ENVIRONMENT", default="development")
 
@@ -35,6 +33,7 @@ INSTALLED_APPS = [
     "cart",
     "rest_framework",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 MIDDLEWARE = [
@@ -101,12 +100,20 @@ SPECTACULAR_SETTINGS = {
     "REDOC_DIST": "SIDECAR",
     "TAGS": [
         {
-            "name": "core",
-            "description": "Core — criação, consulta, atualização e remoção.",
+            "name": "Index",
+            "description": "Service information and useful endpoint links.",
         },
         {
-            "name": "cart",
-            "description": "Cart — criação, consulta, atualização e remoção.",
+            "name": "Health",
+            "description": "Service status, current time, and uptime.",
+        },
+        {
+            "name": "Cart",
+            "description": "Create, view, update, and clear shopping carts.",
+        },
+        {
+            "name": "Cart Item",
+            "description": "Add, view, update, and remove items in shopping carts.",
         },
     ],
     "CONTACT": {

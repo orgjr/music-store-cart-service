@@ -25,4 +25,3 @@ class CartService:
         cart_items = cart.items.all()
         cart_items.delete()
         CartService.update_price(cart_pk)
-        return cart_items

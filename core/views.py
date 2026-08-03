@@ -3,10 +3,14 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from docs.api.core.health import health_schema
+from docs.api.core.index import index_schema
+
 from .helpers.build_url import _build_url
 from .helpers.uptime import get_uptime
 
 
+@index_schema
 @api_view(["GET"])
 def index(request):
     data = {
@@ -21,6 +25,7 @@ def index(request):
     return Response(data)
 
 
+@health_schema
 @api_view(["GET"])
 def health(request):
     data = {

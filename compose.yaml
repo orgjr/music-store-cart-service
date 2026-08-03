@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    image: music-store-cart-service:dev
+    container_name: music-store-cart-service
+    ports:
+      - '8001:8000'
+    volumes:
+      - .:/app:Z
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
