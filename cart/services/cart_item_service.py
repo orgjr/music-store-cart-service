@@ -14,6 +14,7 @@ class CartItemService:
         else:
             cart_item.update(quantity=F("quantity") + quantity)
         CartService.update_price(cart_pk)
+        return cart_item
 
     @staticmethod
     def add_or_update_quantity(cart, data) -> CartItem:
@@ -33,6 +34,7 @@ class CartItemService:
             CartItem.objects.filter(pk=cart_item.pk).update(
                 quantity=F("quantity") + data["quantity"]
             )
+            cart_item.refresh_from_db()
 
         CartService.update_price(cart.pk)
         return cart_item, created
@@ -46,6 +48,7 @@ class CartItemService:
         cart_item = cart.items.filter(product_id=product_id)
         cart_item.update(quantity=F("quantity") + 1)
         CartService.update_price(cart_pk)
+        return f"{cart_item} increased"
 
     @staticmethod
     def remove(cart_pk, product_id):
@@ -59,6 +62,7 @@ class CartItemService:
         else:
             cart_item.update(quantity=F("quantity") - 1)
         CartService.update_price(cart_pk)
+        return f"{cart_item} decreased"
 
     @staticmethod
     def clear(cart_pk, product_id) -> str:
@@ -69,4 +73,4 @@ class CartItemService:
         item = cart.items.get(product_id=product_id)
         item.delete()
         CartService.update_price(cart_pk)
-        return f"{item} deleted"
+        return f"{item} removed"
