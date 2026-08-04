@@ -13,7 +13,6 @@ class CartService:
         price = sum([item.unit_price * item.quantity for item in cart.items.all()])
         cart.price = price
         cart.save(update_fields=["price"])
-        cart.refresh_from_db()
         return cart
 
     @staticmethod

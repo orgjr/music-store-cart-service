@@ -56,7 +56,6 @@ class CartModelCreationTest(TestCase):
         original = cart.updated_at
         cart.price = Decimal("25.00")
         cart.save()
-        cart.refresh_from_db()
         self.assertGreater(cart.updated_at, original)
 
     def test_cart_str_contains_customer_and_uuid(self):

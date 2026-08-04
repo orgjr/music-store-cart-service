@@ -133,7 +133,8 @@ class CartItemViewSet(viewsets.ModelViewSet):
     def decrement(self, request, pk=None):
         instance = self.get_object()
         CartItemService.remove(instance.cart_id, instance.product_id)
-        if CartItem.objects.filter(pk=instance.pk).exists():
+        try:
             instance.refresh_from_db()
-            return Response(self.get_serializer(instance).data)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        except CartItem.DoesNotExist:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(self.get_serializer(instance).data)
