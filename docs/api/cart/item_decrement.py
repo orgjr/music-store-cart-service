@@ -10,6 +10,7 @@ decrement_schema = extend_schema(
         "the quantity reaches zero, the item is removed from the cart."
     ),
     tags=ITEM_TAGS,
+    request=None,
     responses={
         200: OpenApiResponse(
             response=CartItemSerializer,

@@ -1,14 +1,25 @@
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 
 from cart.serializers import CartItemSerializer
-from docs.api.cart.config import ITEM_TAGS, NOT_FOUND_SCHEMA
+from docs.api.cart.config import ITEM_LIST_EXAMPLE, ITEM_TAGS, NOT_FOUND_SCHEMA
 
 list_schema = extend_schema(
     summary="List cart items",
     description="Returns a paginated list of items from all carts.",
     tags=ITEM_TAGS,
     responses={
-        200: CartItemSerializer(many=True),
+        200: OpenApiResponse(
+            response=CartItemSerializer(many=True),
+            description="A paginated collection of cart items from all carts.",
+            examples=[
+                OpenApiExample(
+                    "Cart item list",
+                    summary="A page of cart items",
+                    value=ITEM_LIST_EXAMPLE,
+                    response_only=True,
+                )
+            ],
+        ),
         404: OpenApiResponse(
             response=NOT_FOUND_SCHEMA,
             description="The requested page does not exist.",

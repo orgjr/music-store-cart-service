@@ -10,14 +10,18 @@ class CartServiceFunctionalTest(CartServiceTestCase):
         self.add(2, "Pearl Export", "250.00")
         self.assert_cart_price("1750.00")
 
-        CartItemService.add(self.cart.pk, 1)
+        item1 = CartItem.objects.get(product_id=1)
+        CartItemService.increment(self.cart.pk, item1.pk)
         self.assert_cart_price("3250.00")
 
-        CartItemService.remove(self.cart.pk, 1)
-        CartItemService.remove(self.cart.pk, 2)
+        item1.refresh_from_db()
+        item2 = CartItem.objects.get(product_id=2)
+        CartItemService.decrement(self.cart.pk, item1.pk)
+        CartItemService.decrement(self.cart.pk, item2.pk)
         self.assert_cart_price("1500.00")
 
-        CartItemService.remove(self.cart.pk, 1)
+        item1.refresh_from_db()
+        CartItemService.decrement(self.cart.pk, item1.pk)
         self.assert_cart_price("0.00")
         self.assertEqual(CartItem.objects.count(), 0)
         self.assertTrue(Cart.objects.filter(pk=self.cart.pk).exists())

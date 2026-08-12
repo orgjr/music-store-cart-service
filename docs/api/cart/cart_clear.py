@@ -3,6 +3,7 @@ from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from docs.api.cart.config import NOT_FOUND_SCHEMA, TAGS
 
 clear_schema = extend_schema(
+    operation_id="cart_clear",
     summary="Clear a cart",
     description="Removes every item from the cart and resets its total to zero.",
     tags=TAGS,

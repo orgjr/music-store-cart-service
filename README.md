@@ -12,10 +12,10 @@ API for managing the shopping cart of a music store, built with Django and Djang
   - `GET /api/v1/schema/` — exposes the OpenAPI schema.
   - `GET /api/v1/docs/` — provides the Swagger UI documentation interface.
   - `GET /api/v1/redoc/` — provides the Redoc documentation interface.
-- Complete cart API endpoints: creation, retrieval, update, and deletion of carts and cart items, plus quantity increment/decrement and cart clearing.
+- Complete cart API endpoints: creation, retrieval, and deletion of carts and cart items, plus quantity increment/decrement and cart clearing.
 - Cart domain services:
-  - `CartService` — creates/retrieves carts, updates cart totals, and clears cart contents.
-  - `CartItemService` — adds, removes, and updates item quantities, recalculating the cart total automatically.
+  - `CartService` — creates/retrieves carts, updates cart totals (including `updated_at`), and clears cart contents.
+  - `CartItemService` — adds/increases item quantities, increments/decrements, sets quantities, and clears items, recalculating the cart total automatically.
 - Full OpenAPI documentation in English, organized per endpoint group (`Index`, `Health`, `Cart`, `Cart Item`) with request/response examples and error examples.
 - Docker and Docker Compose support for local development.
 - Automated tests: 110 tests covering domain services, models, API functionality, and app-level smoke and functional flows.
@@ -139,14 +139,12 @@ All API routes are versioned under `/api/v1/`.
 - `POST /api/v1/cart/` — creates (or reuses) a cart.
 - `GET /api/v1/cart/` — lists carts (paginated).
 - `GET /api/v1/cart/{uuid}/` — retrieves a cart with its items.
-- `PUT /api/v1/cart/{uuid}/` — updates a cart.
-- `PATCH /api/v1/cart/{uuid}/` — partially updates a cart.
 - `DELETE /api/v1/cart/{uuid}/items/` — clears all items from a cart.
 - `GET /api/v1/cart/items/` — lists cart items (paginated).
 - `POST /api/v1/cart/items/` — adds an item to a cart; if the product already exists, its quantity is summed.
 - `GET /api/v1/cart/items/{id}/` — retrieves a cart item.
 - `PUT /api/v1/cart/items/{id}/` — updates a cart item.
-- `PATCH /api/v1/cart/items/{id}/` — partially updates a cart item; the quantity field is treated as a delta.
+- `PATCH /api/v1/cart/items/{id}/` — partially updates a cart item; the quantity field sets the item quantity directly.
 - `DELETE /api/v1/cart/items/{id}/` — removes an item from a cart.
 - `POST /api/v1/cart/items/{id}/increment/` — increments the item quantity.
 - `POST /api/v1/cart/items/{id}/decrement/` — decrements the item quantity; removes the item when it reaches zero.

@@ -24,7 +24,7 @@ class ErrorHandlingFunctionalTests(APITestCase):
 
     def test_invalid_item_payload_returns_400(self):
         payload = self.item_payload()
-        payload["quantity"] = 0
+        payload["quantity"] = -1
         response = self.client.post(f"{API_ROOT}/cart/items/", payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

@@ -31,17 +31,17 @@ class CartLifecycleFunctionalTests(CartApiMixin, APITestCase):
         url = f"/api/v1/cart/items/{item_id}/"
         response = self.client.patch(url, {"quantity": 2}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()["quantity"], 5)
-        self.assert_cart_price(Decimal("6250.00"))
+        self.assertEqual(response.json()["quantity"], 2)
+        self.assert_cart_price(Decimal("2500.00"))
 
         response = self.client.post(f"{url}increment/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()["quantity"], 6)
+        self.assertEqual(response.json()["quantity"], 3)
 
         response = self.client.post(f"{url}decrement/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()["quantity"], 5)
-        self.assert_cart_price(Decimal("6250.00"))
+        self.assertEqual(response.json()["quantity"], 2)
+        self.assert_cart_price(Decimal("2500.00"))
 
         response = self.client.delete(f"/api/v1/cart/{self.cart_uuid}/items/")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

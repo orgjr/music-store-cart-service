@@ -29,7 +29,8 @@ class CartServiceUpdatePriceTest(CartServiceTestCase):
 
     def test_resets_price_when_cart_is_empty(self):
         self.add(1, "Gibson Les Paul", "1500.00")
-        CartItemService.clear(self.cart.pk, 1)
+        item = CartItem.objects.get(product_id=1)
+        CartItemService.clear(self.cart.pk, item.pk)
         cart = CartService.update_price(self.cart.pk)
         self.assertEqual(cart.price, Decimal("0.00"))
 

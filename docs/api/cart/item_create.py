@@ -5,7 +5,6 @@ from docs.api.cart.config import (
     ITEM_EXAMPLE,
     ITEM_PAYLOAD_EXAMPLE,
     ITEM_TAGS,
-    NOT_FOUND_SCHEMA,
     VALIDATION_ERROR_SCHEMA,
 )
 
@@ -67,8 +66,14 @@ create_schema = extend_schema(
                 ),
                 OpenApiExample(
                     "Negative quantity",
-                    summary="Quantity below one",
+                    summary="Quantity cannot be negative",
                     value={"quantity": ["Quantity must be at least 1 when adding an item."]},
+                    response_only=True,
+                ),
+                OpenApiExample(
+                    "Zero quantity",
+                    summary="Quantity must be at least one",
+                    value={"quantity": ["Ensure this value is greater than or equal to 1."]},
                     response_only=True,
                 ),
                 OpenApiExample(
@@ -77,18 +82,6 @@ create_schema = extend_schema(
                     value={"product_id": ["Ensure this value is greater than or equal to 1."]},
                     response_only=True,
                 ),
-            ],
-        ),
-        404: OpenApiResponse(
-            response=NOT_FOUND_SCHEMA,
-            description="No cart matches the supplied ID.",
-            examples=[
-                OpenApiExample(
-                    "Cart not found",
-                    summary="Cart not found",
-                    value={"detail": "No Cart matches the given query."},
-                    response_only=True,
-                )
             ],
         ),
         500: OpenApiResponse(description="An unexpected server error occurred."),

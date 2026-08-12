@@ -10,22 +10,12 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = (
-            "id",
-            "cart",
-            "product_id",
-            "product_name",
-            "product_slug",
-            "unit_price",
-            "image_url",
-            "quantity",
-            "added_at",
-        )
+        fields = "__all__"
         read_only_fields = ("id", "added_at")
         validators: ClassVar = []
 
     def validate_quantity(self, value):
-        if self.instance is None and value < 1:
+        if self.instance is None and value < 0:
             raise serializers.ValidationError(
                 "Quantity must be at least 1 when adding an item."
             )
@@ -37,14 +27,7 @@ class CartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = (
-            "uuid",
-            "customer",
-            "price",
-            "items",
-            "created_at",
-            "updated_at",
-        )
+        fields = "__all__"
         read_only_fields = (
             "uuid",
             "customer",

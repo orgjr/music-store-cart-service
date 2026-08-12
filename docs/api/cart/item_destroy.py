@@ -3,6 +3,7 @@ from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from docs.api.cart.config import ITEM_TAGS, NOT_FOUND_SCHEMA
 
 destroy_schema = extend_schema(
+    operation_id="cart_item_destroy",
     summary="Delete a cart item",
     description="Removes an item from its cart and recalculates the cart total.",
     tags=ITEM_TAGS,

@@ -21,7 +21,7 @@ class CartServiceTestCase(TestCase):
         }
 
     def add(self, product_id, name, price, quantity=1):
-        return CartItemService.add_or_update_quantity(
+        return CartItemService.add_or_increase_quantity(
             self.cart, self.item_data(product_id, name, price, quantity)
         )
 

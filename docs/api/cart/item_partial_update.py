@@ -11,9 +11,8 @@ from docs.api.cart.config import (
 partial_update_schema = extend_schema(
     summary="Partially update a cart item",
     description=(
-        "Updates one or more item fields. For `quantity`, send a positive value "
-        "to add units or a negative value to remove units. The item is removed "
-        "when its resulting quantity is less than one."
+        "Updates one or more item fields. When supplied, `quantity` replaces the "
+        "current quantity; a value of `0` removes the item."
     ),
     tags=ITEM_TAGS,
     request=CartItemSerializer,
@@ -24,14 +23,14 @@ partial_update_schema = extend_schema(
             examples=[
                 OpenApiExample(
                     "Item updated",
-                    summary="Quantity adjusted",
-                    value={**ITEM_EXAMPLE, "quantity": 4},
+                    summary="Quantity replaced",
+                    value={**ITEM_EXAMPLE, "quantity": 3},
                     response_only=True,
                 )
             ],
         ),
         204: OpenApiResponse(
-            description="The item was removed because its resulting quantity was less than one."
+            description="The item was removed because its quantity was set to zero."
         ),
         400: OpenApiResponse(
             response=VALIDATION_ERROR_SCHEMA,
@@ -60,9 +59,9 @@ partial_update_schema = extend_schema(
     },
     examples=[
         OpenApiExample(
-            "Quantity adjustment",
-            summary="Decrease the quantity by two",
-            value={"quantity": -2},
+            "Set quantity",
+            summary="Set the item quantity to three",
+            value={"quantity": 3},
             request_only=True,
         )
     ],

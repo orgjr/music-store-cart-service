@@ -7,6 +7,7 @@ increment_schema = extend_schema(
     summary="Increase an item quantity",
     description="Increases the item quantity by one and recalculates the cart total.",
     tags=ITEM_TAGS,
+    request=None,
     responses={
         200: OpenApiResponse(
             response=CartItemSerializer,

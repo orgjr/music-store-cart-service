@@ -3,7 +3,9 @@ from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from cart.serializers import CartItemSerializer
 from docs.api.cart.config import (
     ITEM_EXAMPLE,
+    ITEM_PAYLOAD_EXAMPLE,
     ITEM_TAGS,
+    ITEM_UPDATE_PAYLOAD_EXAMPLE,
     NOT_FOUND_SCHEMA,
     VALIDATION_ERROR_SCHEMA,
 )
@@ -11,9 +13,8 @@ from docs.api.cart.config import (
 update_schema = extend_schema(
     summary="Update a cart item",
     description=(
-        "Replaces an existing item. For `quantity`, send a positive value to add "
-        "units or a negative value to remove units. The item is removed when its "
-        "resulting quantity is less than one."
+        "Replaces an existing item. `quantity` is the desired final quantity; set "
+        "it to `0` to remove the item. All writable item fields are required."
     ),
     tags=ITEM_TAGS,
     request=CartItemSerializer,
@@ -24,14 +25,14 @@ update_schema = extend_schema(
             examples=[
                 OpenApiExample(
                     "Item updated",
-                    summary="Quantity adjusted",
-                    value={**ITEM_EXAMPLE, "quantity": 4},
+                    summary="Item replaced",
+                    value={**ITEM_EXAMPLE, "quantity": 3},
                     response_only=True,
                 )
             ],
         ),
         204: OpenApiResponse(
-            description="The item was removed because its resulting quantity was less than one."
+            description="The item was removed because its quantity was set to zero."
         ),
         400: OpenApiResponse(
             response=VALIDATION_ERROR_SCHEMA,
@@ -66,10 +67,16 @@ update_schema = extend_schema(
     },
     examples=[
         OpenApiExample(
-            "Quantity adjustment",
-            summary="Decrease the quantity by two",
-            value={"quantity": -2},
+            "Replace item",
+            summary="Replace all writable item fields",
+            value=ITEM_UPDATE_PAYLOAD_EXAMPLE,
             request_only=True,
-        )
+        ),
+        OpenApiExample(
+            "Remove by quantity",
+            summary="Set the quantity to zero",
+            value={**ITEM_PAYLOAD_EXAMPLE, "quantity": 0},
+            request_only=True,
+        ),
     ],
 )

@@ -29,7 +29,9 @@ class CartWorkflowFunctionalTests(APITestCase):
         health = self.client.get(API_ROOT + "/health/")
         self.assertEqual(health.status_code, status.HTTP_200_OK)
 
-        add = self.client.post(f"{API_ROOT}/cart/items/", self.cart_payload, format="json")
+        add = self.client.post(
+            f"{API_ROOT}/cart/items/", self.cart_payload, format="json"
+        )
         self.assertEqual(add.status_code, status.HTTP_201_CREATED)
         item_id = add.json()["id"]
         self.assert_cart_price(Decimal("1250.00"))
@@ -47,18 +49,18 @@ class CartWorkflowFunctionalTests(APITestCase):
             format="json",
         )
         self.assertEqual(bump.status_code, status.HTTP_200_OK)
-        self.assertEqual(bump.json()["quantity"], 5)
-        self.assert_cart_price(Decimal("6250.00"))
+        self.assertEqual(bump.json()["quantity"], 3)
+        self.assert_cart_price(Decimal("3750.00"))
 
         inc = self.client.post(f"{API_ROOT}/cart/items/{item_id}/increment/")
         self.assertEqual(inc.status_code, status.HTTP_200_OK)
-        self.assertEqual(inc.json()["quantity"], 6)
+        self.assertEqual(inc.json()["quantity"], 4)
 
         dec = self.client.post(f"{API_ROOT}/cart/items/{item_id}/decrement/")
         self.assertEqual(dec.status_code, status.HTTP_200_OK)
-        self.assertEqual(dec.json()["quantity"], 5)
+        self.assertEqual(dec.json()["quantity"], 3)
 
-        self.assert_cart_price(Decimal("6250.00"))
+        self.assert_cart_price(Decimal("3750.00"))
 
     def test_cart_is_cleared_through_delete_items_route(self):
         self.client.post(f"{API_ROOT}/cart/items/", self.cart_payload, format="json")

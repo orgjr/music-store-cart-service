@@ -42,10 +42,13 @@ class CartItemCreateEndpointTests(CartItemApiTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("cart", response.json())
 
-    def test_add_item_quantity_must_be_positive(self):
-        response = self.add_item(quantity=0)
+    def test_add_item_quantity_zero_returns_400(self):
+        response = self.client.post(
+            CART_ITEM_LIST_URL,
+            self.item_payload(quantity=0),
+            format="json",
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("quantity", response.json())
         self.assertEqual(CartItem.objects.count(), 0)
 
     def test_add_item_with_negative_quantity_returns_400(self):

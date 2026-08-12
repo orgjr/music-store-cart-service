@@ -5,7 +5,6 @@ from rest_framework.mixins import (
     CreateModelMixin,
     ListModelMixin,
     RetrieveModelMixin,
-    UpdateModelMixin,
 )
 from rest_framework.response import Response
 
@@ -17,9 +16,7 @@ from docs.api.cart import (
     cart_clear,
     cart_create,
     cart_list,
-    cart_partial_update,
     cart_retrieve,
-    cart_update,
     item_create,
     item_decrement,
     item_destroy,
@@ -35,15 +32,12 @@ from docs.api.cart import (
     list=cart_list.list_schema,
     create=cart_create.create_schema,
     retrieve=cart_retrieve.retrieve_schema,
-    update=cart_update.update_schema,
-    partial_update=cart_partial_update.partial_update_schema,
     clear=cart_clear.clear_schema,
 )
 class CartViewSet(
     viewsets.GenericViewSet,
     CreateModelMixin,
     RetrieveModelMixin,
-    UpdateModelMixin,
     ListModelMixin,
 ):
     queryset = Cart.objects.all().order_by("-created_at")
@@ -81,7 +75,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         cart = data.pop("cart")
-        item, created = CartItemService.add_or_update_quantity(cart, data)
+        item, created = CartItemService.add_or_increase_quantity(cart, data)
         return Response(
             self.get_serializer(item).data,
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
@@ -95,6 +89,25 @@ class CartItemViewSet(viewsets.ModelViewSet):
         kwargs["partial"] = True
         return self._update_item(request, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        CartItemService.clear(instance.cart_id, instance.pk)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=["post"])
+    def increment(self, request, pk=None):
+        instance = self.get_object()
+        instance = CartItemService.increment(instance.cart_id, instance.pk)
+        return Response(self.get_serializer(instance).data)
+
+    @action(detail=True, methods=["post"])
+    def decrement(self, request, pk=None):
+        instance = self.get_object()
+        instance = CartItemService.decrement(instance.cart_id, instance.pk)
+        if not instance:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(self.get_serializer(instance).data)
+
     def _update_item(self, request, partial, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -103,38 +116,15 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
         quantity = data.pop("quantity", None)
         if quantity is not None:
-            CartItemService.update_quantity(
-                instance.cart_id, instance.product_id, quantity
+            instance = CartItemService.update_quantity(
+                instance.cart_id, instance.pk, quantity
             )
 
         if data:
-            CartItem.objects.filter(pk=instance.pk).update(**data)
+            instance = CartItem.objects.filter(pk=instance.pk).update(**data)
             CartService.update_price(instance.cart_id)
 
         if not CartItem.objects.filter(pk=instance.pk).exists():
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        instance.refresh_from_db()
-        return Response(self.get_serializer(instance).data)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        CartItemService.clear(instance.cart_id, instance.product_id)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=["post"])
-    def increment(self, request, pk=None):
-        instance = self.get_object()
-        CartItemService.add(instance.cart_id, instance.product_id)
-        instance.refresh_from_db()
-        return Response(self.get_serializer(instance).data)
-
-    @action(detail=True, methods=["post"])
-    def decrement(self, request, pk=None):
-        instance = self.get_object()
-        CartItemService.remove(instance.cart_id, instance.product_id)
-        try:
-            instance.refresh_from_db()
-        except CartItem.DoesNotExist:
-            return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(self.get_serializer(instance).data)

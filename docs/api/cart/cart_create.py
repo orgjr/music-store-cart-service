@@ -1,12 +1,13 @@
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 
 from cart.serializers import CartSerializer
-from docs.api.cart.config import CART_EXAMPLE, TAGS
+from docs.api.cart.config import EMPTY_CART_EXAMPLE, TAGS
 
 create_schema = extend_schema(
     summary="Create a cart",
     description="Creates a new empty cart with a total of zero.",
     tags=TAGS,
+    request=None,
     responses={
         201: OpenApiResponse(
             response=CartSerializer,
@@ -15,7 +16,7 @@ create_schema = extend_schema(
                 OpenApiExample(
                     "Cart created",
                     summary="New cart",
-                    value=CART_EXAMPLE,
+                    value=EMPTY_CART_EXAMPLE,
                     response_only=True,
                 )
             ],
