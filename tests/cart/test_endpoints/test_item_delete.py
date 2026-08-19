@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from cart.models import CartItem
+from cart_item.models import CartItem
 from tests.cart.test_endpoints.base import CartItemApiTestCase
 
 

@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from cart.models import CartItem
+from cart_item.models import CartItem
 from tests.cart.test_endpoints.base import CartItemApiTestCase
 
 
@@ -14,7 +14,9 @@ class CartItemUpdateEndpointTests(CartItemApiTestCase):
             self.item_url(item), {"quantity": 3}, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()["quantity"], 3)
+        body = response.json()
+        self.assertEqual(body["quantity"], 3)
+        self.assertEqual(body["price"], "3750.00")
         self.assert_cart_price("3750.00")
 
     def test_partial_update_quantity_zero_removes_item(self):
@@ -26,19 +28,20 @@ class CartItemUpdateEndpointTests(CartItemApiTestCase):
         self.assertFalse(CartItem.objects.filter(pk=item.pk).exists())
         self.assert_cart_price("0.00")
 
-    def test_partial_update_negative_quantity_returns_500(self):
+    def test_partial_update_negative_quantity_returns_400(self):
         item = self.create_item(quantity=5)
-        self.client.raise_request_exception = False
         response = self.client.patch(
             self.item_url(item),
             {"quantity": -2},
             format="json",
         )
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("quantity", response.json())
 
     def test_full_put_sets_quantity(self):
         item = self.create_item(quantity=2)
         payload = self.item_payload(quantity=1)
         self.client.raise_request_exception = False
         response = self.client.put(self.item_url(item), payload, format="json")
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["quantity"], 1)

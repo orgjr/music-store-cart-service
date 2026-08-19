@@ -4,14 +4,20 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from cart.models import Cart, CartItem
+from cart.models import Cart
+from cart_item.models import CartItem
+from tests.base import ProductServiceMockMixin
 from tests.core.test_functional.base import ITEM_PAYLOAD
 
 API_ROOT = "/api/v1"
 
 
-class CartWorkflowFunctionalTests(APITestCase):
+class CartWorkflowFunctionalTests(ProductServiceMockMixin, APITestCase):
     def setUp(self):
+        super().setUp()
+        self.register_product(
+            "fender-stratocaster", name="Fender Stratocaster", price="1250.00"
+        )
         self.cart = Cart.objects.create()
         self.cart_payload = dict(ITEM_PAYLOAD, cart=str(self.cart.pk))
 
@@ -33,7 +39,7 @@ class CartWorkflowFunctionalTests(APITestCase):
             f"{API_ROOT}/cart/items/", self.cart_payload, format="json"
         )
         self.assertEqual(add.status_code, status.HTTP_201_CREATED)
-        item_id = add.json()["id"]
+        item_id = add.json()["uuid"]
         self.assert_cart_price(Decimal("1250.00"))
 
         duplicate = self.client.post(
@@ -94,11 +100,11 @@ class CartWorkflowFunctionalTests(APITestCase):
     def test_two_carts_keep_independent_prices(self):
         self.client.post(f"{API_ROOT}/cart/items/", self.cart_payload, format="json")
         other = Cart.objects.create()
+        self.register_product("yamaha-u1-piano", name="Yamaha U1 Piano", price="99.90")
         other_payload = dict(
             ITEM_PAYLOAD,
             cart=str(other.pk),
-            product_id=99,
-            unit_price="99.90",
+            product_slug="yamaha-u1-piano",
         )
         self.client.post(f"{API_ROOT}/cart/items/", other_payload, format="json")
 

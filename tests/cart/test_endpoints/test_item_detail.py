@@ -16,7 +16,11 @@ class CartItemDetailEndpointTests(CartItemApiTestCase):
         item = self.create_item()
         response = self.client.get(f"/api/v1/cart/items/{item.pk}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()["product_id"], 10)
+        body = response.json()
+        self.assertEqual(body["uuid"], str(item.pk))
+        self.assertEqual(body["product_id"], str(item.product_id))
+        self.assertEqual(body["product_slug"], item.product_slug)
+        self.assertEqual(body["product_price"], "1250.00")
 
     def test_retrieve_missing_item_returns_404(self):
         response = self.client.get("/api/v1/cart/items/99999/")

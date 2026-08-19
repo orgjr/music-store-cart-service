@@ -22,6 +22,8 @@ ENVIRONMENT = env("ENVIRONMENT", default="development")
 
 ALLOWED_HOSTS = []
 
+CATALOG_SERVICE_URL = env("CATALOG_SERVICE_URL").rstrip("/")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -31,6 +33,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core",
     "cart",
+    "cart_item",
     "rest_framework",
     "drf_spectacular",
     "drf_spectacular_sidecar",

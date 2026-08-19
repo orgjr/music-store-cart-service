@@ -4,12 +4,13 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from cart.models import Cart
+from tests.base import ProductServiceMockMixin
 from tests.core.test_functional.base import ITEM_PAYLOAD
 
 API_ROOT = "/api/v1"
 
 
-class ErrorHandlingFunctionalTests(APITestCase):
+class ErrorHandlingFunctionalTests(ProductServiceMockMixin, APITestCase):
     def item_payload(self):
         cart = Cart.objects.create()
         return dict(ITEM_PAYLOAD, cart=str(cart.pk))

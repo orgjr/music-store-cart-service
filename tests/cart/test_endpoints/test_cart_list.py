@@ -1,7 +1,9 @@
+from uuid import uuid4
+
 from django.urls import reverse
 from rest_framework import status
 
-from cart.services.cart_service import CartService
+from services.cart_service import CartService
 from tests.cart.test_endpoints.base import CART_LIST_URL, CartEndpointApiTestCase
 
 
@@ -10,7 +12,7 @@ class CartListEndpointTests(CartEndpointApiTestCase):
         self.assertEqual(reverse("cart-list"), CART_LIST_URL)
 
     def test_cart_list_is_paginated(self):
-        CartService.get_or_create_cart()
+        CartService.get_or_create_cart(uuid4())
         response = self.client.get(CART_LIST_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         body = response.json()

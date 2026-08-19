@@ -1,6 +1,6 @@
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 
-from cart.serializers import CartItemSerializer
+from cart_item.serializers import CartItemResponseSerializer
 from docs.api.cart.config import ITEM_EXAMPLE, ITEM_TAGS, NOT_FOUND_SCHEMA
 
 increment_schema = extend_schema(
@@ -10,13 +10,13 @@ increment_schema = extend_schema(
     request=None,
     responses={
         200: OpenApiResponse(
-            response=CartItemSerializer,
+            response=CartItemResponseSerializer,
             description="The item quantity was increased by one.",
             examples=[
                 OpenApiExample(
                     "Item incremented",
                     summary="Quantity increased by one",
-                    value={**ITEM_EXAMPLE, "quantity": 2},
+                    value={**ITEM_EXAMPLE, "quantity": 2, "price": "2500.00"},
                     response_only=True,
                 )
             ],

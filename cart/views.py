@@ -1,4 +1,3 @@
-from drf_spectacular.utils import extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.mixins import (
@@ -8,32 +7,17 @@ from rest_framework.mixins import (
 )
 from rest_framework.response import Response
 
-from cart.models import Cart, CartItem
-from cart.serializers import CartItemSerializer, CartSerializer
-from cart.services.cart_item_service import CartItemService
-from cart.services.cart_service import CartService
-from docs.api.cart import (
-    cart_clear,
-    cart_create,
-    cart_list,
-    cart_retrieve,
-    item_create,
-    item_decrement,
-    item_destroy,
-    item_increment,
-    item_list,
-    item_partial_update,
-    item_retrieve,
-    item_update,
+from cart.models import Cart
+from cart.serializers import (
+    CartResponseSerializer,
+    CartSerializer,
 )
+from docs.api import cart_schema
+from services.cart_item_service import CartItemService
+from services.cart_service import CartService
 
 
-@extend_schema_view(
-    list=cart_list.list_schema,
-    create=cart_create.create_schema,
-    retrieve=cart_retrieve.retrieve_schema,
-    clear=cart_clear.clear_schema,
-)
+@cart_schema
 class CartViewSet(
     viewsets.GenericViewSet,
     CreateModelMixin,
@@ -44,87 +28,36 @@ class CartViewSet(
     serializer_class = CartSerializer
     lookup_value_regex = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 
+    def list(self, request):
+        cart_list = self.get_queryset()
+        for cart in cart_list:
+            [
+                CartItemService.update_price(item.pk) for item in cart.items.all()
+            ] if cart.items else []
+
+            CartService.update_price(cart.pk)
+            cart.refresh_from_db()
+        self.serializer_class = CartResponseSerializer
+        return super().list(request)
+
+    def retrieve(self, request, pk):
+        self.serializer_class = CartResponseSerializer
+        cart = self.get_object()
+        [CartItemService.update_price(item.pk) for item in cart.items.all()]
+        CartService.update_price(cart.pk)
+        cart.refresh_from_db()
+        return super().retrieve(self, request, pk)
+
     def create(self, request, *args, **kwargs):
-        cart, _ = CartService.get_or_create_cart()
-        serializer = self.get_serializer(cart)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        customer = serializer.validated_data.get("customer")
+        cart, _ = CartService.get_or_create_cart(customer)
+        response = CartResponseSerializer(cart)
+        return Response(response.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["delete"], url_path="items", url_name="clear")
     def clear(self, request, pk=None):
         cart = self.get_object()
         CartService.clear(cart.pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@extend_schema_view(
-    list=item_list.list_schema,
-    create=item_create.create_schema,
-    retrieve=item_retrieve.retrieve_schema,
-    update=item_update.update_schema,
-    partial_update=item_partial_update.partial_update_schema,
-    destroy=item_destroy.destroy_schema,
-    increment=item_increment.increment_schema,
-    decrement=item_decrement.decrement_schema,
-)
-class CartItemViewSet(viewsets.ModelViewSet):
-    queryset = CartItem.objects.all().order_by("-added_at")
-    serializer_class = CartItemSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
-        cart = data.pop("cart")
-        item, created = CartItemService.add_or_increase_quantity(cart, data)
-        return Response(
-            self.get_serializer(item).data,
-            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
-        )
-
-    def update(self, request, *args, **kwargs):
-        kwargs["partial"] = False
-        return self._update_item(request, **kwargs)
-
-    def partial_update(self, request, *args, **kwargs):
-        kwargs["partial"] = True
-        return self._update_item(request, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        CartItemService.clear(instance.cart_id, instance.pk)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=["post"])
-    def increment(self, request, pk=None):
-        instance = self.get_object()
-        instance = CartItemService.increment(instance.cart_id, instance.pk)
-        return Response(self.get_serializer(instance).data)
-
-    @action(detail=True, methods=["post"])
-    def decrement(self, request, pk=None):
-        instance = self.get_object()
-        instance = CartItemService.decrement(instance.cart_id, instance.pk)
-        if not instance:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(self.get_serializer(instance).data)
-
-    def _update_item(self, request, partial, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
-
-        quantity = data.pop("quantity", None)
-        if quantity is not None:
-            instance = CartItemService.update_quantity(
-                instance.cart_id, instance.pk, quantity
-            )
-
-        if data:
-            instance = CartItem.objects.filter(pk=instance.pk).update(**data)
-            CartService.update_price(instance.cart_id)
-
-        if not CartItem.objects.filter(pk=instance.pk).exists():
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        return Response(self.get_serializer(instance).data)

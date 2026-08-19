@@ -1,6 +1,6 @@
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 
-from cart.serializers import CartItemSerializer
+from cart_item.serializers import CartItemResponseSerializer
 from docs.api.cart.config import ITEM_LIST_EXAMPLE, ITEM_TAGS, NOT_FOUND_SCHEMA
 
 list_schema = extend_schema(
@@ -9,7 +9,7 @@ list_schema = extend_schema(
     tags=ITEM_TAGS,
     responses={
         200: OpenApiResponse(
-            response=CartItemSerializer(many=True),
+            response=CartItemResponseSerializer(many=True),
             description="A paginated collection of cart items from all carts.",
             examples=[
                 OpenApiExample(

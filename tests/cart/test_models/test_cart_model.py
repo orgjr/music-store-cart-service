@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from cart.models import Cart
-from cart.services.cart_service import CartService
+from services.cart_service import CartService
 
 
 class CartModelCreationTest(TestCase):
@@ -19,7 +19,7 @@ class CartModelCreationTest(TestCase):
 
     def test_cart_uuids_are_unique_across_instances(self):
         first, _ = CartService.get_or_create_cart()
-        second, _ = CartService.get_or_create_cart()
+        second, _ = CartService.get_or_create_cart(uuid4())
         self.assertNotEqual(first.pk, second.pk)
 
     def test_cart_price_defaults_to_zero(self):

@@ -1,6 +1,6 @@
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 
-from cart.serializers import CartItemSerializer
+from cart_item.serializers import CartItemResponseSerializer, CartItemSerializer
 from docs.api.cart.config import (
     ITEM_EXAMPLE,
     ITEM_PAYLOAD_EXAMPLE,
@@ -14,19 +14,20 @@ update_schema = extend_schema(
     summary="Update a cart item",
     description=(
         "Replaces an existing item. `quantity` is the desired final quantity; set "
-        "it to `0` to remove the item. All writable item fields are required."
+        "it to `0` to remove the item. All writable item fields (`cart`, "
+        "`product_slug`, `quantity`) are required."
     ),
     tags=ITEM_TAGS,
     request=CartItemSerializer,
     responses={
         200: OpenApiResponse(
-            response=CartItemSerializer,
+            response=CartItemResponseSerializer,
             description="The item was updated successfully.",
             examples=[
                 OpenApiExample(
                     "Item updated",
                     summary="Item replaced",
-                    value={**ITEM_EXAMPLE, "quantity": 3},
+                    value={**ITEM_EXAMPLE, "quantity": 3, "price": "3750.00"},
                     response_only=True,
                 )
             ],
@@ -41,7 +42,7 @@ update_schema = extend_schema(
                 OpenApiExample(
                     "Required field missing",
                     summary="Required field missing",
-                    value={"product_name": ["This field is required."]},
+                    value={"product_slug": ["This field is required."]},
                     response_only=True,
                 ),
                 OpenApiExample(

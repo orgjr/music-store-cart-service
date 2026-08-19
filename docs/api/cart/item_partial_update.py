@@ -1,6 +1,6 @@
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 
-from cart.serializers import CartItemSerializer
+from cart_item.serializers import CartItemResponseSerializer, CartItemSerializer
 from docs.api.cart.config import (
     ITEM_EXAMPLE,
     ITEM_TAGS,
@@ -18,13 +18,13 @@ partial_update_schema = extend_schema(
     request=CartItemSerializer,
     responses={
         200: OpenApiResponse(
-            response=CartItemSerializer,
+            response=CartItemResponseSerializer,
             description="The item was updated successfully.",
             examples=[
                 OpenApiExample(
                     "Item updated",
                     summary="Quantity replaced",
-                    value={**ITEM_EXAMPLE, "quantity": 3},
+                    value={**ITEM_EXAMPLE, "quantity": 3, "price": "3750.00"},
                     response_only=True,
                 )
             ],

@@ -3,7 +3,8 @@ from decimal import Decimal
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from cart.models import Cart, CartItem
+from cart.models import Cart
+from cart_item.models import CartItem
 from tests.cart.test_endpoints.base import (
     CART_LIST_URL,
     CartApiMixin,
@@ -12,6 +13,7 @@ from tests.cart.test_endpoints.base import (
 
 class CartLifecycleFunctionalTests(CartApiMixin, APITestCase):
     def setUp(self):
+        super().setUp()
         response = self.client.post(CART_LIST_URL, {}, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.cart_uuid = response.json()["uuid"]
@@ -25,7 +27,7 @@ class CartLifecycleFunctionalTests(CartApiMixin, APITestCase):
         response = self.add_item(quantity=1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assert_cart_price(Decimal("3750.00"))
-        item_id = response.json()["id"]
+        item_id = response.json()["uuid"]
         self.assertEqual(response.json()["quantity"], 3)
 
         url = f"/api/v1/cart/items/{item_id}/"
@@ -56,7 +58,10 @@ class CartLifecycleFunctionalTests(CartApiMixin, APITestCase):
     def test_cart_can_be_reused_after_being_cleared(self):
         self.add_item(quantity=1)
         self.client.delete(f"/api/v1/cart/{self.cart_uuid}/items/")
-        response = self.add_item(product_id=20, name="Yamaha U1 Piano", price="4500.00")
+        self.register_product(
+            "yamaha-u1-piano", name="Yamaha U1 Piano", price="4500.00"
+        )
+        response = self.add_item(slug="yamaha-u1-piano")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assert_cart_price(Decimal("4500.00"))
         self.assertEqual(CartItem.objects.filter(cart=self.cart).count(), 1)

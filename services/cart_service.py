@@ -3,16 +3,17 @@ from cart.models import Cart
 
 class CartService:
     @staticmethod
-    def get_or_create_cart(cart_pk=None):
-        cart, created = Cart.objects.get_or_create(pk=cart_pk)
+    def get_or_create_cart(customer=None):
+        cart, created = Cart.objects.get_or_create(customer=customer)
         return cart, created
 
     @staticmethod
     def update_price(cart_pk):
         cart = Cart.objects.get(pk=cart_pk)
-        price = sum([item.unit_price * item.quantity for item in cart.items.all()])
+        price = sum([item.price for item in cart.items.all()])
         cart.price = price
-        cart.save(update_fields=["price", "updated_at"])
+        cart.save(update_fields=["price"])
+        cart.refresh_from_db()
         return cart
 
     @staticmethod

@@ -1,6 +1,6 @@
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 
-from cart.serializers import CartItemSerializer
+from cart_item.serializers import CartItemResponseSerializer, CartItemSerializer
 from docs.api.cart.config import (
     ITEM_EXAMPLE,
     ITEM_PAYLOAD_EXAMPLE,
@@ -11,14 +11,15 @@ from docs.api.cart.config import (
 create_schema = extend_schema(
     summary="Add an item to a cart",
     description=(
-        "Adds a product to a cart. If that product is already in the cart, its "
-        "quantity is increased by the requested amount."
+        "Adds a product to a cart by its slug. Product data is resolved from the "
+        "catalog service. If that product is already in the cart, its quantity is "
+        "increased by the requested amount."
     ),
     tags=ITEM_TAGS,
     request=CartItemSerializer,
     responses={
         201: OpenApiResponse(
-            response=CartItemSerializer,
+            response=CartItemResponseSerializer,
             description="The item was added to the cart.",
             examples=[
                 OpenApiExample(
@@ -30,13 +31,13 @@ create_schema = extend_schema(
             ],
         ),
         200: OpenApiResponse(
-            response=CartItemSerializer,
+            response=CartItemResponseSerializer,
             description="The item was already in the cart, so its quantity was updated.",
             examples=[
                 OpenApiExample(
                     "Item updated",
                     summary="Existing item quantity updated",
-                    value={**ITEM_EXAMPLE, "quantity": 3},
+                    value={**ITEM_EXAMPLE, "quantity": 3, "price": "3750.00"},
                     response_only=True,
                 )
             ],
@@ -47,8 +48,8 @@ create_schema = extend_schema(
             examples=[
                 OpenApiExample(
                     "Required field missing",
-                    summary="Missing product name",
-                    value={"product_name": ["This field is required."]},
+                    summary="Missing product slug",
+                    value={"product_slug": ["This field is required."]},
                     response_only=True,
                 ),
                 OpenApiExample(
@@ -67,19 +68,30 @@ create_schema = extend_schema(
                 OpenApiExample(
                     "Negative quantity",
                     summary="Quantity cannot be negative",
-                    value={"quantity": ["Quantity must be at least 1 when adding an item."]},
+                    value={
+                        "quantity": ["Quantity must be at least 1 when adding an item."]
+                    },
                     response_only=True,
                 ),
                 OpenApiExample(
                     "Zero quantity",
                     summary="Quantity must be at least one",
-                    value={"quantity": ["Ensure this value is greater than or equal to 1."]},
+                    value={
+                        "quantity": ["Ensure this value is greater than or equal to 1."]
+                    },
                     response_only=True,
                 ),
                 OpenApiExample(
-                    "Negative product id",
-                    summary="Invalid product ID",
-                    value={"product_id": ["Ensure this value is greater than or equal to 1."]},
+                    "Invalid product slug",
+                    summary="Invalid product slug",
+                    value={
+                        "product_slug": [
+                            (
+                                "Enter a valid 'slug' consisting of letters, numbers, "
+                                "underscores or hyphens."
+                            )
+                        ]
+                    },
                     response_only=True,
                 ),
             ],

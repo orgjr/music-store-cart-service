@@ -1,6 +1,6 @@
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 
-from cart.serializers import CartItemSerializer
+from cart_item.serializers import CartItemResponseSerializer
 from docs.api.cart.config import ITEM_EXAMPLE, ITEM_TAGS, NOT_FOUND_SCHEMA
 
 retrieve_schema = extend_schema(
@@ -9,7 +9,7 @@ retrieve_schema = extend_schema(
     tags=ITEM_TAGS,
     responses={
         200: OpenApiResponse(
-            response=CartItemSerializer,
+            response=CartItemResponseSerializer,
             description="The cart item was found.",
             examples=[
                 OpenApiExample(

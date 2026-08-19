@@ -13,7 +13,7 @@ class CartItemListEndpointTests(CartItemApiTestCase):
 
     def test_list_items_is_paginated(self):
         self.add_item()
-        self.add_item(product_id=20, name="Yamaha U1 Piano")
+        self.add_item(slug="yamaha-u1-piano")
         response = self.client.get(CART_ITEM_LIST_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         body = response.json()
