@@ -60,9 +60,9 @@ class CartItemService:
                 CartItem.objects.filter(pk=item.pk).update(
                     quantity=F("quantity") + quantity, updated_at=localtime()
                 )
-                item.cart.save(update_fields=["updated_at"])
                 item = CartItemService.update_price(item.pk)
 
+            item.cart.save(update_fields=["updated_at"])
             return item, created
         except DjangoValidationError as e:
             raise ValidationError(e.message_dict)
